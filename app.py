@@ -1,9 +1,24 @@
 import streamlit as st
 import joblib
 import numpy as np
+import os
+import gdown
 
-# 1. Load model, scaler, dan encoders yang sudah dilatih di Colab
-model = joblib.load("car_price_model.pkl")
+# ID File Google Drive untuk car_price_model.pkl
+FILE_ID = "1ttc35-S_4UjwFJSeMe15Jh1E_RvUZMiQ"
+MODEL_PATH = "car_price_model.pkl"
+
+# Fungsi mendownload model dari Google Drive jika belum ada di server Streamlit
+@st.cache_resource
+def load_model_from_drive():
+    if not os.path.exists(MODEL_PATH):
+        with st.spinner("Sedang mengunduh model dari Google Drive (ini hanya sekali)..."):
+            url = f"https://drive.google.com/uc?id={FILE_ID}"
+            gdown.download(url, MODEL_PATH, quiet=False)
+    return joblib.load(MODEL_PATH)
+
+# 1. Load model, scaler, dan encoders
+model = load_model_from_drive()
 scaler = joblib.load("scaler.pkl")
 encoders = joblib.load("encoders.pkl")
 
